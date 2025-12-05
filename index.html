@@ -16,30 +16,75 @@
     input.placeholder-red::placeholder { color: #e74c3c; }
     .row { margin-bottom: 8px; }
     button { padding: 8px 12px; margin-top: 10px; cursor: pointer; }
-    .reset-btn, .add-btn, .cal-btn, .print-btn {
-      border: none; border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.2); font-weight: bold; transition: background-color 0.3s, transform 0.2s; cursor: pointer; margin-left: 5px; padding: 10px 40px;
+    .reset-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 10px 40px;
+      margin-left: 5px;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.2s;
     }
-    .reset-btn { background-color: #e74c3c; color: white; }
     .reset-btn:hover { background-color: #c0392b; transform: translateY(-2px); }
-    .add-btn { background-color: #4c5cc5; color: white; }
+    .add-btn {
+      background-color: #4c5cc5;
+      color: white;
+      border: none;
+      padding: 10px 40px;
+      margin-left: 5px;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.2s;
+    }
     .add-btn:hover { background-color: #3b4ab0; transform: translateY(-2px); }
-    .cal-btn { background-color: #3994cc; color: white; }
+    .cal-btn {
+      background-color: #3994cc;
+      color: white;
+      border: none;
+      padding: 10px 40px;
+      margin-left: 5px;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.2s;
+    }
     .cal-btn:hover { background-color: #337aa1; transform: translateY(-2px); }
-    .print-btn { background-color: #27ae60; color: white; }
+    .print-btn {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      padding: 10px 40px;
+      margin-left: 5px;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.2s;
+    }
     .print-btn:hover { background-color: #1e8449; transform: translateY(-2px); }
     .results { margin-top: 10px; font-weight: bold; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 10px; }
-    th, td { border: 1px solid #ccc; padding: 4px; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
     th { background-color: #f0f0f0; }
     tfoot td { font-weight: bold; }
 
+    /* Print formatting */
     @media print {
-      @page { size: 4in 6in; margin: 0; }
+      @page {
+        size: 4in 6in;
+        margin: 0.1in;
+      }
       body * { visibility: hidden; }
       .print-section, .print-section * { visibility: visible; }
       .print-section { position: absolute; left: 0; top: 0; width: 4in; height: 6in; margin: 0; padding: 0; }
-      table { width: 100%; border-collapse: collapse; font-size: 10px; }
-      th, td { border: 1px solid #000; padding: 3px; }
+      table { font-size: 12px; width: 100%; border-collapse: collapse; }
+      th, td { padding: 4px; border: 1px solid #000; }
     }
   </style>
 </head>
@@ -53,12 +98,16 @@
   <button onclick="resetCalculator()" class="reset-btn">Xóa</button>
 
   <h3>Ăn Chia % (Chủ/Thợ)</h3>
-  Chủ % <input type="number" id="ownerPercent" value="40" min="0" max="100" oninput="adjustOwnerEmployee('owner')">
-  Thợ % <input type="number" id="employeePercent" value="60" min="0" max="100" oninput="adjustOwnerEmployee('employee')">
+  Chủ %
+  <input type="number" id="ownerPercent" value="40" min="0" max="100" oninput="adjustOwnerEmployee('owner')">
+  Thợ %
+  <input type="number" id="employeePercent" value="60" min="0" max="100" oninput="adjustOwnerEmployee('employee')">
 
   <h3>Thợ - Cash/Check (%)</h3>
-  Cash % <input type="number" id="cashPercent" value="35" min="0" max="100" oninput="adjustCashCheck('cash')">
-  Check % <input type="number" id="checkPercent" value="65" min="0" max="100" oninput="adjustCashCheck('check')">
+  Cash %
+  <input type="number" id="cashPercent" value="35" min="0" max="100" oninput="adjustCashCheck('cash')">
+  Check %
+  <input type="number" id="checkPercent" value="65" min="0" max="100" oninput="adjustCashCheck('check')">
 
   <div id="employeeList"></div>
 </div>
@@ -123,18 +172,18 @@
     div.id="employee_"+employeeCount;
     const weekDates=getWeekDates();
     const dayInputs=daysVN.map((day,i)=>`
-    <div class="row">${day} (${weekDates[i]}):
-      <input type="number" id="${dayIds[i]}_${employeeCount}" placeholder="0.00" class="placeholder-red">
-      <input type="number" id="${dayIds[i]}_tips_${employeeCount}" placeholder="Tips">
-    </div>
-  `).join('');
+      <div class="row">${day} (${weekDates[i]}):
+        <input type="number" id="${dayIds[i]}_${employeeCount}" placeholder="0.00" class="placeholder-red">
+        <input type="number" id="${dayIds[i]}_tips_${employeeCount}" placeholder="Tips">
+      </div>
+    `).join('');
     div.innerHTML=`
-    <h3>${name}</h3>
-    ${dayInputs}
-    <button onclick="calculate(${employeeCount})" class="cal-btn">Calculate</button>
-    <button onclick="printEmployee(${employeeCount})" class="print-btn">Print</button>
-    <div class="results" id="result_${employeeCount}"></div>
-  `;
+      <h3>${name}</h3>
+      ${dayInputs}
+      <button onclick="calculate(${employeeCount})" class="cal-btn">Calculate</button>
+      <button onclick="printEmployee(${employeeCount})" class="print-btn">Print</button>
+      <div class="results" id="result_${employeeCount}"></div>
+    `;
     document.getElementById("employeeList").appendChild(div);
     document.getElementById("employeeName").value="";
   }
@@ -160,43 +209,37 @@
     const employeeCheck=employeeShare*(checkPercent/100)+totalTips;
 
     const tableRows=dailyEarnings.map(d=>`
-    <tr>
-      <td>${d.day} (${d.date})</td>
-      <td>${d.amount===0?'--':d.amount.toFixed(2)}</td>
-      <td>${d.tips===0?'--':d.tips.toFixed(2)}</td>
-    </tr>
-  `).join('');
+      <tr>
+        <td>${d.day} (${d.date})</td>
+        <td>${d.amount===0?'--':d.amount.toFixed(2)}</td>
+        <td>${d.tips===0?'--':d.tips.toFixed(2)}</td>
+      </tr>
+    `).join('');
 
     const employeeName=document.querySelector(`#employee_${id} h3`).innerText;
 
     document.getElementById(`result_${id}`).innerHTML=`
-    <div class="print-section" id="print_${id}">
-      <table>
-        <thead>
-          <tr><th colspan="3">${employeeName}</th></tr>
-          <tr><th>Ngày (Date)</th><th>Earnings</th><th>Tips</th></tr>
-        </thead>
-        <tbody>${tableRows}</tbody>
-        <tfoot>
-          <tr><td>Total</td><td>${total.toFixed(2)}</td><td>${totalTips.toFixed(2)}</td></tr>
-          <tr><td>Chủ (${ownerPercent}%)</td><td>${ownerShare.toFixed(2)}</td><td></td></tr>
-          <tr><td>Thợ (${employeePercent}%)</td><td>${employeeShare.toFixed(2)}</td><td></td></tr>
-          <tr><td>Cash / Check (${cashPercent}% / ${checkPercent}%)</td>
-              <td colspan="2">Cash: ${employeeCash.toFixed(2)} / Check: ${employeeCheck.toFixed(2)}</td></tr>
-        </tfoot>
-      </table>
-    </div>
-  `;
+      <div class="print-section" id="print_${id}">
+        <table>
+          <thead>
+            <tr><th colspan="3">${employeeName}</th></tr>
+            <tr><th>Ngày (Date)</th><th>Earnings</th><th>Tips</th></tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
+          <tfoot>
+            <tr><td>Total</td><td>${total.toFixed(2)}</td><td>${totalTips.toFixed(2)}</td></tr>
+            <tr><td>Chủ (${ownerPercent}%)</td><td>${ownerShare.toFixed(2)}</td><td></td></tr>
+            <tr><td>Thợ (${employeePercent}%)</td><td>${employeeShare.toFixed(2)}</td><td></td></tr>
+            <tr><td>Cash / Check (${cashPercent}% / ${checkPercent}%)</td>
+                <td colspan="2">Cash: ${employeeCash.toFixed(2)} / Check: ${employeeCheck.toFixed(2)}</td></tr>
+          </tfoot>
+        </table>
+      </div>
+    `;
   }
 
   function printEmployee(id){
-    const printContents=document.getElementById(`print_${id}`).outerHTML;
-    const newWindow=window.open('','_blank');
-    newWindow.document.write(`<html><head><title>Print</title></head><body>${printContents}</body></html>`);
-    newWindow.document.close();
-    newWindow.focus();
-    newWindow.print();
-    newWindow.close();
+    window.print();
   }
 
   function resetCalculator(){
