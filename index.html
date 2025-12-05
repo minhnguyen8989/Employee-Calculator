@@ -16,57 +16,13 @@
     input.placeholder-red::placeholder { color: #e74c3c; }
     .row { margin-bottom: 8px; }
     button { padding: 8px 12px; margin-top: 10px; cursor: pointer; }
-    .reset-btn {
-      background-color: #e74c3c;
-      color: white;
-      border: none;
-      padding: 10px 40px;
-      margin-left: 5px;
-      cursor: pointer;
-      border-radius: 8px;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-      font-weight: bold;
-      transition: background-color 0.3s, transform 0.2s;
-    }
+    .reset-btn { background-color: #e74c3c; color: white; border: none; padding: 10px 40px; margin-left: 5px; cursor: pointer; border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.2); font-weight: bold; transition: background-color 0.3s, transform 0.2s; }
     .reset-btn:hover { background-color: #c0392b; transform: translateY(-2px); }
-    .add-btn {
-      background-color: #4c5cc5;
-      color: white;
-      border: none;
-      padding: 10px 40px;
-      margin-left: 5px;
-      cursor: pointer;
-      border-radius: 8px;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-      font-weight: bold;
-      transition: background-color 0.3s, transform 0.2s;
-    }
+    .add-btn { background-color: #4c5cc5; color: white; border: none; padding: 10px 40px; margin-left: 5px; cursor: pointer; border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.2); font-weight: bold; transition: background-color 0.3s, transform 0.2s; }
     .add-btn:hover { background-color: #3b4ab0; transform: translateY(-2px); }
-    .cal-btn {
-      background-color: #3994cc;
-      color: white;
-      border: none;
-      padding: 10px 40px;
-      margin-left: 5px;
-      cursor: pointer;
-      border-radius: 8px;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-      font-weight: bold;
-      transition: background-color 0.3s, transform 0.2s;
-    }
+    .cal-btn { background-color: #3994cc; color: white; border: none; padding: 10px 40px; margin-left: 5px; cursor: pointer; border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.2); font-weight: bold; transition: background-color 0.3s, transform 0.2s; }
     .cal-btn:hover { background-color: #337aa1; transform: translateY(-2px); }
-    .print-btn {
-      background-color: #27ae60;
-      color: white;
-      border: none;
-      padding: 10px 40px;
-      margin-left: 5px;
-      cursor: pointer;
-      border-radius: 8px;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-      font-weight: bold;
-      transition: background-color 0.3s, transform 0.2s;
-    }
+    .print-btn { background-color: #27ae60; color: white; border: none; padding: 10px 40px; margin-left: 5px; cursor: pointer; border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.2); font-weight: bold; transition: background-color 0.3s, transform 0.2s; }
     .print-btn:hover { background-color: #1e8449; transform: translateY(-2px); }
     .results { margin-top: 10px; font-weight: bold; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -86,15 +42,15 @@
 
   <h3>Ăn Chia % (Chủ/Thợ)</h3>
   Chủ %
-  <input type="number" id="ownerPercent" value="40" min="0" max="100" oninput="adjustOwnerEmployee('owner')">
+  <input type="number" inputmode="decimal" pattern="[0-9]*" id="ownerPercent" value="40" min="0" max="100" oninput="adjustOwnerEmployee('owner'); enforceNumeric(this);">
   Thợ %
-  <input type="number" id="employeePercent" value="60" min="0" max="100" oninput="adjustOwnerEmployee('employee')">
+  <input type="number" inputmode="decimal" pattern="[0-9]*" id="employeePercent" value="60" min="0" max="100" oninput="adjustOwnerEmployee('employee'); enforceNumeric(this);">
 
   <h3>Thợ - Cash/Check (%)</h3>
   Cash %
-  <input type="number" id="cashPercent" value="35" min="0" max="100" oninput="adjustCashCheck('cash')">
+  <input type="number" inputmode="decimal" pattern="[0-9]*" id="cashPercent" value="35" min="0" max="100" oninput="adjustCashCheck('cash'); enforceNumeric(this);">
   Check %
-  <input type="number" id="checkPercent" value="65" min="0" max="100" oninput="adjustCashCheck('check')">
+  <input type="number" inputmode="decimal" pattern="[0-9]*" id="checkPercent" value="65" min="0" max="100" oninput="adjustCashCheck('check'); enforceNumeric(this);">
 
   <div id="employeeList"></div>
 </div>
@@ -103,6 +59,11 @@
   let employeeCount = 0;
   const daysVN = ["Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy","Chủ Nhật"];
   const dayIds = ["mon","tue","wed","thu","fri","sat","sun"];
+
+  // Enforce numeric input
+  function enforceNumeric(input){
+    input.value = input.value.replace(/[^0-9.]/g,'');
+  }
 
   function adjustOwnerEmployee(changed){
     const ownerInput=document.getElementById("ownerPercent");
@@ -156,8 +117,8 @@
     const weekDates=getWeekDates();
     const dayInputs=daysVN.map((day,i)=>`
     <div class="row">${day} (${weekDates[i]}):
-      <input type="number" id="${dayIds[i]}_${employeeCount}" placeholder="0.00" class="placeholder-red">
-      <input type="number" id="${dayIds[i]}_tips_${employeeCount}" placeholder="Tips">
+      <input type="number" inputmode="decimal" pattern="[0-9]*" id="${dayIds[i]}_${employeeCount}" placeholder="0.00" class="placeholder-red" oninput="enforceNumeric(this);">
+      <input type="number" inputmode="decimal" pattern="[0-9]*" id="${dayIds[i]}_tips_${employeeCount}" placeholder="Tips" oninput="enforceNumeric(this);">
     </div>
   `).join('');
     div.innerHTML=`
@@ -221,7 +182,7 @@
   `;
   }
 
-  // Print using a temporary iframe
+  // Print using iframe for 4x6
   function printEmployee(id){
     const content = document.getElementById(`print_${id}`).outerHTML;
     const iframe = document.createElement('iframe');
