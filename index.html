@@ -73,19 +73,6 @@
     th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
     th { background-color: #f0f0f0; }
     tfoot td { font-weight: bold; }
-
-    /* Print formatting */
-    @media print {
-      @page {
-        size: 4in 6in;
-        margin: 0.1in;
-      }
-      body * { visibility: hidden; }
-      .print-section, .print-section * { visibility: visible; }
-      .print-section { position: absolute; left: 0; top: 0; width: 4in; height: 6in; margin: 0; padding: 0; }
-      table { font-size: 12px; width: 100%; border-collapse: collapse; }
-      th, td { padding: 4px; border: 1px solid #000; }
-    }
   </style>
 </head>
 <body>
@@ -120,14 +107,12 @@
   function adjustOwnerEmployee(changed){
     const ownerInput=document.getElementById("ownerPercent");
     const employeeInput=document.getElementById("employeePercent");
-    let owner=Number(ownerInput.value);
-    let employee=Number(employeeInput.value);
     if(changed==='owner'){
-      if(owner>100) owner=100; if(owner<0) owner=0;
+      let owner=Math.min(Math.max(Number(ownerInput.value),0),100);
       ownerInput.value=owner;
       employeeInput.value=100-owner;
     } else {
-      if(employee>100) employee=100; if(employee<0) employee=0;
+      let employee=Math.min(Math.max(Number(employeeInput.value),0),100);
       employeeInput.value=employee;
       ownerInput.value=100-employee;
     }
@@ -136,14 +121,12 @@
   function adjustCashCheck(changed){
     const cashInput=document.getElementById("cashPercent");
     const checkInput=document.getElementById("checkPercent");
-    let cash=Number(cashInput.value);
-    let check=Number(checkInput.value);
     if(changed==='cash'){
-      if(cash>100) cash=100; if(cash<0) cash=0;
+      let cash=Math.min(Math.max(Number(cashInput.value),0),100);
       cashInput.value=cash;
       checkInput.value=100-cash;
     } else {
-      if(check>100) check=100; if(check<0) check=0;
+      let check=Math.min(Math.max(Number(checkInput.value),0),100);
       checkInput.value=check;
       cashInput.value=100-check;
     }
@@ -172,18 +155,18 @@
     div.id="employee_"+employeeCount;
     const weekDates=getWeekDates();
     const dayInputs=daysVN.map((day,i)=>`
-      <div class="row">${day} (${weekDates[i]}):
-        <input type="number" id="${dayIds[i]}_${employeeCount}" placeholder="0.00" class="placeholder-red">
-        <input type="number" id="${dayIds[i]}_tips_${employeeCount}" placeholder="Tips">
-      </div>
-    `).join('');
+    <div class="row">${day} (${weekDates[i]}):
+      <input type="number" id="${dayIds[i]}_${employeeCount}" placeholder="0.00" class="placeholder-red">
+      <input type="number" id="${dayIds[i]}_tips_${employeeCount}" placeholder="Tips">
+    </div>
+  `).join('');
     div.innerHTML=`
-      <h3>${name}</h3>
-      ${dayInputs}
-      <button onclick="calculate(${employeeCount})" class="cal-btn">Calculate</button>
-      <button onclick="printEmployee(${employeeCount})" class="print-btn">Print</button>
-      <div class="results" id="result_${employeeCount}"></div>
-    `;
+    <h3>${name}</h3>
+    ${dayInputs}
+    <button onclick="calculate(${employeeCount})" class="cal-btn">Calculate</button>
+    <button onclick="printEmployee(${employeeCount})" class="print-btn">Print</button>
+    <div class="results" id="result_${employeeCount}"></div>
+  `;
     document.getElementById("employeeList").appendChild(div);
     document.getElementById("employeeName").value="";
   }
@@ -209,37 +192,59 @@
     const employeeCheck=employeeShare*(checkPercent/100)+totalTips;
 
     const tableRows=dailyEarnings.map(d=>`
-      <tr>
-        <td>${d.day} (${d.date})</td>
-        <td>${d.amount===0?'--':d.amount.toFixed(2)}</td>
-        <td>${d.tips===0?'--':d.tips.toFixed(2)}</td>
-      </tr>
-    `).join('');
+    <tr>
+      <td>${d.day} (${d.date})</td>
+      <td>${d.amount===0?'--':d.amount.toFixed(2)}</td>
+      <td>${d.tips===0?'--':d.tips.toFixed(2)}</td>
+    </tr>
+  `).join('');
 
     const employeeName=document.querySelector(`#employee_${id} h3`).innerText;
 
     document.getElementById(`result_${id}`).innerHTML=`
-      <div class="print-section" id="print_${id}">
-        <table>
-          <thead>
-            <tr><th colspan="3">${employeeName}</th></tr>
-            <tr><th>Ngày (Date)</th><th>Earnings</th><th>Tips</th></tr>
-          </thead>
-          <tbody>${tableRows}</tbody>
-          <tfoot>
-            <tr><td>Total</td><td>${total.toFixed(2)}</td><td>${totalTips.toFixed(2)}</td></tr>
-            <tr><td>Chủ (${ownerPercent}%)</td><td>${ownerShare.toFixed(2)}</td><td></td></tr>
-            <tr><td>Thợ (${employeePercent}%)</td><td>${employeeShare.toFixed(2)}</td><td></td></tr>
-            <tr><td>Cash / Check (${cashPercent}% / ${checkPercent}%)</td>
-                <td colspan="2">Cash: ${employeeCash.toFixed(2)} / Check: ${employeeCheck.toFixed(2)}</td></tr>
-          </tfoot>
-        </table>
-      </div>
-    `;
+    <div class="print-section" id="print_${id}">
+      <table>
+        <thead>
+          <tr><th colspan="3">${employeeName}</th></tr>
+          <tr><th>Ngày (Date)</th><th>Earnings</th><th>Tips</th></tr>
+        </thead>
+        <tbody>${tableRows}</tbody>
+        <tfoot>
+          <tr><td>Total</td><td>${total.toFixed(2)}</td><td>${totalTips.toFixed(2)}</td></tr>
+          <tr><td>Chủ (${ownerPercent}%)</td><td>${ownerShare.toFixed(2)}</td><td></td></tr>
+          <tr><td>Thợ (${employeePercent}%)</td><td>${employeeShare.toFixed(2)}</td><td></td></tr>
+          <tr><td>Cash / Check (${cashPercent}% / ${checkPercent}%)</td>
+              <td colspan="2">Cash: ${employeeCash.toFixed(2)} / Check: ${employeeCheck.toFixed(2)}</td></tr>
+        </tfoot>
+      </table>
+    </div>
+  `;
   }
 
+  // Print using a temporary iframe
   function printEmployee(id){
-    window.print();
+    const content = document.getElementById(`print_${id}`).outerHTML;
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
+    <html>
+      <head>
+        <style>
+          @page { size: 4in 6in; margin:0.1in; }
+          body { font-family: Arial; margin:0; }
+          table { width:100%; border-collapse: collapse; font-size:12px; }
+          th, td { border:1px solid #000; padding:4px; text-align:center; }
+        </style>
+      </head>
+      <body>${content}</body>
+    </html>
+  `);
+    doc.close();
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+    setTimeout(()=>{ document.body.removeChild(iframe); }, 1000);
   }
 
   function resetCalculator(){
