@@ -149,9 +149,11 @@
     div.id = "employee_" + employeeCount;
 
     const weekDates = getWeekDates();
+
     const dayInputs = daysVN.map((day, i) => `
       <div class="row">${day} (${weekDates[i]}):
         <input type="number" id="${dayIds[i]}_${employeeCount}" placeholder="0.00" class="placeholder-red">
+        <input type="number" id="${dayIds[i]}_tips_${employeeCount}" placeholder="Tips">
       </div>
     `).join('');
 
@@ -169,12 +171,15 @@
   function calculate(id) {
     const weekDates = getWeekDates();
     let total = 0;
+    let totalTips = 0;
     const dailyEarnings = [];
 
     dayIds.forEach((dayId, i) => {
-      const value = Number(document.getElementById(`${dayId}_${id}`).value);
-      dailyEarnings.push({ day: daysVN[i], date: weekDates[i], amount: value });
-      total += value;
+      const earn = Number(document.getElementById(`${dayId}_${id}`).value);
+      const tip = Number(document.getElementById(`${dayId}_tips_${id}`).value);
+      dailyEarnings.push({ day: daysVN[i], date: weekDates[i], amount: earn, tips: tip });
+      total += earn;
+      totalTips += tip;
     });
 
     const ownerPercent = Number(document.getElementById("ownerPercent").value);
@@ -184,13 +189,15 @@
 
     const ownerShare = total * (ownerPercent / 100);
     const employeeShare = total * (employeePercent / 100);
+
     const employeeCash = employeeShare * (cashPercent / 100);
-    const employeeCheck = employeeShare * (checkPercent / 100);
+    const employeeCheck = employeeShare * (checkPercent / 100) + totalTips;
 
     const tableRows = dailyEarnings.map(d => `
       <tr>
         <td>${d.day} (${d.date})</td>
-        <td>${d.amount === 0 ? '--OFF--' : d.amount.toFixed(2)}</td>
+        <td>${d.amount === 0 ? '--' : d.amount.toFixed(2)}</td>
+        <td>${d.tips === 0 ? '--' : d.tips.toFixed(2)}</td>
       </tr>
     `).join('');
 
@@ -199,16 +206,16 @@
     document.getElementById(`result_${id}`).innerHTML = `
       <table>
         <thead>
-          <tr><th colspan="2">${employeeName}</th></tr>
-          <tr><th>Ngày (Date)</th><th>Earnings</th></tr>
+          <tr><th colspan="3">${employeeName}</th></tr>
+          <tr><th>Ngày (Date)</th><th>Earnings</th><th>Tips</th></tr>
         </thead>
         <tbody>${tableRows}</tbody>
         <tfoot>
-          <tr><td>Total</td><td>${total.toFixed(2)}</td></tr>
-          <tr><td>Chủ (${ownerPercent}%)</td><td>${ownerShare.toFixed(2)}</td></tr>
-          <tr><td>Thợ (${employeePercent}%)</td><td>${employeeShare.toFixed(2)}</td></tr>
+          <tr><td>Total</td><td>${total.toFixed(2)}</td><td>${totalTips.toFixed(2)}</td></tr>
+          <tr><td>Chủ (${ownerPercent}%)</td><td>${ownerShare.toFixed(2)}</td><td></td></tr>
+          <tr><td>Thợ (${employeePercent}%)</td><td>${employeeShare.toFixed(2)}</td><td></td></tr>
           <tr><td>Cash / Check (${cashPercent}% / ${checkPercent}%)</td>
-              <td>Cash: ${employeeCash.toFixed(2)} / Check: ${employeeCheck.toFixed(2)}</td></tr>
+              <td colspan="2">Cash: ${employeeCash.toFixed(2)} / Check: ${employeeCheck.toFixed(2)}</td></tr>
         </tfoot>
       </table>
     `;
