@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Employee Weekly Calculator</title>
+  <style>
+    body { font-family: Arial; margin: 40px; }
+    .container { max-width: 700px; margin: auto; }
+    .employee-box {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 8px;
+    }
+    input { margin: 5px 0; padding: 6px; width: 150px; }
+    input.placeholder-red::placeholder { color: #e74c3c; }
+    .row { margin-bottom: 8px; }
+    button { padding: 8px 12px; margin-top: 10px; cursor: pointer; }
+    .reset-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 10px 60px;
+      margin-left: 5px;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .reset-btn:hover { background-color: #c0392b; transform: translateY(-2px); }
+    .add-btn {
+      background-color: #4c5cc5;
+      color: white;
+      border: none;
+      padding: 10px 60px;
+      margin-left: 5px;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .add-btn:hover { background-color: #3b4ab0; transform: translateY(-2px); }
+    .cal-btn {
+      background-color: #3994cc;
+      color: white;
+      border: none;
+      padding: 10px 60px;
+      margin-left: 5px;
+      cursor: pointer;
+      border-radius: 8px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      font-weight: bold;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .cal-btn:hover { background-color: #337aa1; transform: translateY(-2px); }
+    .results { margin-top: 10px; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+    th { background-color: #f0f0f0; }
+    tfoot td { font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Employee Weekly Calculator</h2>
+
+  <input type="text" id="employeeName" placeholder="Tên Thợ">
+  <button onclick="addEmployee()" class="add-btn">Thêm</button>
+  <button onclick="resetCalculator()" class="reset-btn">Xóa</button>
+
+  <h3>Ăn Chia % (Chủ/Thợ)</h3>
+  Chủ %
+  <input type="number" id="ownerPercent" value="40" min="0" max="100" oninput="adjustOwnerEmployee('owner')">
+  Thợ %
+  <input type="number" id="employeePercent" value="60" min="0" max="100" oninput="adjustOwnerEmployee('employee')">
+
+  <h3>Thợ - Cash/Check (%)</h3>
+  Cash %
+  <input type="number" id="cashPercent" value="35" min="0" max="100" oninput="adjustCashCheck('cash')">
+  Check %
+  <input type="number" id="checkPercent" value="65" min="0" max="100" oninput="adjustCashCheck('check')">
+
+  <div id="employeeList"></div>
+</div>
+
+<script>
+  let employeeCount = 0;
+  const daysVN = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"];
+  const dayIds = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+
+  function adjustOwnerEmployee(changed) {
+    const ownerInput = document.getElementById("ownerPercent");
+    const employeeInput = document.getElementById("employeePercent");
+    let owner = Number(ownerInput.value);
+    let employee = Number(employeeInput.value);
+
+    if (changed === 'owner') {
+      if (owner > 100) owner = 100; if (owner < 0) owner = 0;
+      ownerInput.value = owner;
+      employeeInput.value = 100 - owner;
+    } else {
+      if (employee > 100) employee = 100; if (employee < 0) employee = 0;
+      employeeInput.value = employee;
+      ownerInput.value = 100 - employee;
+    }
+  }
+
+  function adjustCashCheck(changed) {
+    const cashInput = document.getElementById("cashPercent");
+    const checkInput = document.getElementById("checkPercent");
+    let cash = Number(cashInput.value);
+    let check = Number(checkInput.value);
+
+    if (changed === 'cash') {
+      if (cash > 100) cash = 100; if (cash < 0) cash = 0;
+      cashInput.value = cash;
+      checkInput.value = 100 - cash;
+    } else {
+      if (check > 100) check = 100; if (check < 0) check = 0;
+      checkInput.value = check;
+      cashInput.value = 100 - check;
+    }
+  }
+
+  function getWeekDates() {
+    const today = new Date();
+    const day = today.getDay();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - ((day + 6) % 7));
+    let weekDates = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      weekDates.push(d.toLocaleDateString());
+    }
+    return weekDates;
+  }
+
+  function addEmployee() {
+    const name = document.getElementById("employeeName").value.trim();
+    if (!name) return alert("Nhập tên thợ");
+
+    employeeCount++;
+    const div = document.createElement("div");
+    div.className = "employee-box";
+    div.id = "employee_" + employeeCount;
+
+    const weekDates = getWeekDates();
+    const dayInputs = daysVN.map((day, i) => `
+      <div class="row">${day} (${weekDates[i]}):
+        <input type="number" id="${dayIds[i]}_${employeeCount}" placeholder="0.00" class="placeholder-red">
+      </div>
+    `).join('');
+
+    div.innerHTML = `
+      <h3>${name}</h3>
+      ${dayInputs}
+      <button onclick="calculate(${employeeCount})" class="cal-btn">Calculate</button>
+      <div class="results" id="result_${employeeCount}"></div>
+    `;
+
+    document.getElementById("employeeList").appendChild(div);
+    document.getElementById("employeeName").value = "";
+  }
+
+  function calculate(id) {
+    const weekDates = getWeekDates();
+    let total = 0;
+    const dailyEarnings = [];
+
+    dayIds.forEach((dayId, i) => {
+      const value = Number(document.getElementById(`${dayId}_${id}`).value);
+      dailyEarnings.push({ day: daysVN[i], date: weekDates[i], amount: value });
+      total += value;
+    });
+
+    const ownerPercent = Number(document.getElementById("ownerPercent").value);
+    const employeePercent = Number(document.getElementById("employeePercent").value);
+    const cashPercent = Number(document.getElementById("cashPercent").value);
+    const checkPercent = Number(document.getElementById("checkPercent").value);
+
+    const ownerShare = total * (ownerPercent / 100);
+    const employeeShare = total * (employeePercent / 100);
+    const employeeCash = employeeShare * (cashPercent / 100);
+    const employeeCheck = employeeShare * (checkPercent / 100);
+
+    const tableRows = dailyEarnings.map(d => `
+      <tr>
+        <td>${d.day} (${d.date})</td>
+        <td>${d.amount === 0 ? '--OFF--' : d.amount.toFixed(2)}</td>
+      </tr>
+    `).join('');
+
+    const employeeName = document.querySelector(`#employee_${id} h3`).innerText;
+
+    document.getElementById(`result_${id}`).innerHTML = `
+      <table>
+        <thead>
+          <tr><th colspan="2">${employeeName}</th></tr>
+          <tr><th>Ngày (Date)</th><th>Earnings</th></tr>
+        </thead>
+        <tbody>${tableRows}</tbody>
+        <tfoot>
+          <tr><td>Total</td><td>${total.toFixed(2)}</td></tr>
+          <tr><td>Chủ (${ownerPercent}%)</td><td>${ownerShare.toFixed(2)}</td></tr>
+          <tr><td>Thợ (${employeePercent}%)</td><td>${employeeShare.toFixed(2)}</td></tr>
+          <tr><td>Cash / Check (${cashPercent}% / ${checkPercent}%)</td>
+              <td>Cash: ${employeeCash.toFixed(2)} / Check: ${employeeCheck.toFixed(2)}</td></tr>
+        </tfoot>
+      </table>
+    `;
+  }
+
+  function resetCalculator() {
+    employeeCount = 0;
+    document.getElementById("employeeList").innerHTML = "";
+    document.getElementById("employeeName").value = "";
+    document.getElementById("ownerPercent").value = 40;
+    document.getElementById("employeePercent").value = 60;
+    document.getElementById("cashPercent").value = 35;
+    document.getElementById("checkPercent").value = 65;
+  }
+</script>
+
+</body>
+</html>
